@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+
+set -e
+
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
+cd "$DIR"
+
+case "$1" in
+    "")
+        # Interactive runner menu
+        docker compose run --rm app php bin/run
+        ;;
+    "php")
+        shift
+        docker compose run --rm app php "$@"
+        ;;
+    "composer")
+        shift
+        docker compose run --rm app composer "$@"
+        ;;
+    "test"|"phpunit")
+        shift
+        docker compose run --rm app ./vendor/bin/phpunit "$@"
+        ;;
+    "sh"|"bash")
+        docker compose run --rm app bash
+        ;;
+    "build")
+        docker compose build
+        ;;
+    *)
+        # Run specific pattern or file: ./run Singleton or ./run src/Creational/Singleton/index.php
+        docker compose run --rm app php bin/run "$@"
+        ;;
+esac
