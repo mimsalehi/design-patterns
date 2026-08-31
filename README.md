@@ -1,0 +1,217 @@
+# 🏛️ دیزاین پترن‌ها در PHP (Design Patterns in PHP 8.3+)
+
+یک محیط استاندارد، ایزوله و سریع بر پایه **Docker** و **PHP 8.3** برای یادگیری، پیاده‌سازی و تدریس الگوهای طراحی (Design Patterns) بر اساس استاندارد ۲۳ الگوی GoF (Gang of Four).
+
+---
+
+## 📋 فهرست مطالب
+- [ویژگی‌های کلیدی](#-ویژگیهای-کلیدی)
+- [پیش‌نیازها و راه‌اندازی سریع](#-پیشنیازها-و-راهاندازی-سریع)
+- [ساختار پوشه‌بندی و دسته‌بندی الگوها (GoF)](#-ساختار-پوشهبندی-و-دستهبندی-الگوها-gof)
+- [نحوه اجرا و کار با Runner تعاملی](#-نحوه-اجرا-و-کار-با-runner-تعاملی)
+- [الگوهای پیاده‌سازی شده](#-الگوهای-پیادهسازی-شده)
+  - [۱. Factory Method (الگوی آفرینشی)](#۱-factory-method-الگوی-آفرینشی)
+- [راهنمای پیاده‌سازی یک الگوی جدید](#-راهنمای-پیادهسازی-یک-الگوی-جدید)
+- [دستورات کاربردی (Makefile & Scripts)](#-دستورات-کاربردی-makefile--scripts)
+- [تست‌ها و تضمین کیفیت](#-تستها-و-تضمین-کیفیت)
+
+---
+
+## ✨ ویژگی‌های کلیدی
+- **PHP 8.3 CLI:** بهره‌گیری از آخرین امکانات و قابلیت‌های زبان PHP (مانند Typed Properties، Constructor Promotion، Readonly Properties و ...).
+- **محیط کاملاً کانتینریزه (Docker & Compose):** بدون نیاز به نصب PHP یا Composer روی سیستم میزبان.
+- **Interactive CLI Runner:** اسکریپت تعاملی و هوشمند برای انتخاب و اجرای سریع الگوها با اندازه‌گیری زمان اجرا.
+- **Autoloading استاندارد (PSR-4):** با پیشوند نام‌فضای `App\` متصل به دایرکتوری `src/`.
+- **Debugging زیبا:** ادغام شده با `symfony/var-dumper` برای خروجی‌های خوانا و رنگی (`dump()`).
+- **تست‌نویسی:** آماده‌سازی شده برای نوشتن تست‌های واحد با **PHPUnit 11**.
+
+---
+
+## 🚀 پیش‌نیازها و راه‌اندازی سریع
+
+### پیش‌نیازها
+تنها داشتن **Docker** و **Docker Compose** روی سیستم کافی است.
+
+### اجرای سریع
+بدون نیاز به نصب وابستگی‌ها، پروژه را با دستور زیر کلون و اجرا کنید:
+
+```bash
+# اعطای دسترسی اجرایی به اسکریپت run (در صورت نیاز در لینوکس/مک)
+chmod +x run bin/run
+
+# اجرای رانر تعاملی
+./run
+```
+
+---
+
+## 📁 ساختار پوشه‌بندی و دسته‌بندی الگوها (GoF)
+
+پروژه به ۳ دسته اصلی الگوهای GoF تفکیک شده است:
+
+```text
+design-patterns/
+├── bin/
+│   └── run                        # اسکریپت اصلی PHP برای اجرای پترن‌ها
+├── src/
+│   ├── Creational/                # الگوهای آفرینشی (Creational Patterns)
+│   │   ├── AbstractFactory/
+│   │   ├── Builder/
+│   │   ├── FactoryMethod/         # [پیاده‌سازی شده]
+│   │   ├── Prototype/
+│   │   └── Singleton/
+│   │
+│   ├── Structural/                # الگوهای ساختاری (Structural Patterns)
+│   │   ├── Adapter/
+│   │   ├── Bridge/
+│   │   ├── Composite/
+│   │   ├── Decorator/
+│   │   ├── Facade/
+│   │   ├── Flyweight/
+│   │   └── Proxy/
+│   │
+│   └── Behavioral/                # الگوهای رفتاری (Behavioral Patterns)
+│       ├── ChainOfResponsibility/
+│       ├── Command/
+│       ├── Iterator/
+│       ├── Mediator/
+│       ├── Memento/
+│       ├── Observer/
+│       ├── State/
+│       ├── Strategy/
+│       ├── TemplateMethod/
+│       └── Visitor/
+├── tests/                         # تست‌های PHPUnit
+├── Dockerfile                     # مشخصات ایمیج PHP 8.3 CLI
+├── docker-compose.yml             # تنظیمات سرویس‌های داکر
+├── composer.json                  # تعریف پکیج‌ها و تنظیمات Autoloading
+├── Makefile                       # دستورات میانبر make
+├── phpunit.xml                    # تنظیمات تست‌های PHPUnit
+└── run                            # اسکریپت Bash واسط داکر
+```
+
+---
+
+## 🎮 نحوه اجرا و کار با Runner تعاملی
+
+### ۱. اجرای منوی تعاملی
+با اجرای دستور `./run`، منوی رنگی تمام پترن‌ها نمایش داده می‌شود و می‌توانید با وارد کردن شماره یا نام هر پترن آن را اجرا کنید:
+
+```bash
+./run
+```
+
+### ۲. اجرای مستقیم یک پترن با نام
+می‌توانید مستقیماً نام پترن یا مسیر آن را به عنوان ورودی ارسال کنید:
+
+```bash
+# اجرای مستقیم الگوی FactoryMethod
+./run FactoryMethod
+
+# یا با ذکر دسته‌بندی
+./run Creational/FactoryMethod
+```
+
+### ۳. اجرای یک فایل PHP دلخواه
+```bash
+./run src/Creational/FactoryMethod/index.php
+```
+
+---
+
+## 💡 الگوهای پیاده‌سازی شده
+
+### ۱. Factory Method (الگوی آفرینشی)
+
+#### 🎯 هدف و صورت مسئله
+در یک سیستم فروشگاهی آنلاین، نیاز است پس از ثبت سفارش، پیام تأیید سفارش برای مشتری ارسال شود. مشتریان ممکن است کانال‌های مختلفی نظیر **SMS (کاوه نگار)**، **Email (SMTP)** یا **Telegram** را برای دریافت نوتیفیکیشن انتخاب کنند.
+
+#### ❌ رویکرد قدیمی (Legacy / Anti-pattern)
+در کلاس `Legacy\OrderNotificationService`، تمام لاجیک آماده‌سازی پیام و همچنین ساخت کانکشن‌های اختصاصی هر سرویس‌دهنده (API Key، هاست SMTP و...) به شکل یکپارچه و به شدت وابسته (Tightly Coupled) با شرط‌های متوالی `if/else` پیاده شده بود که اصل Open/Closed Principle (OCP) را نقض می‌کرد.
+
+#### ✅ پیاده‌سازی با الگوی Factory Method
+با جداسازی کانال‌ها (Products) و سرویس‌های ارسال (Creators):
+
+- **Product Interface:** `NotificationChannelInterface`
+- **Concrete Products:**
+  - `SmsChannel`: پیاده‌سازی ارسال پیامک با Kavenegar
+  - `EmailChannel`: پیاده‌سازی ارسال ایمیل با Mailtrap/SMTP
+  - `TelegramChannel`: پیاده‌سازی ارسال نوتیفیکیشن تلگرام با بات
+- **Creator (Abstract Class):** `NotificationService` متد قالب را به عنوان بیزینس لاجیک اصلی تعریف کرده و متد کارخانه‌ای `abstract public function createChannel()` را به زیرکلاس‌ها واگذار می‌کند.
+- **Concrete Creators:**
+  - `SmsNotificationService`
+  - `EmailNotificationService`
+  - `NotificationTelegramService`
+
+#### 🧪 نحوه تست و اجرا:
+```bash
+./run FactoryMethod
+```
+
+خروجی نمونه:
+```text
+=== Processing Order #1001 (Customer selected SMS) ===
+[SMS Gateway] Dispatched to +989111110202 via Kavenagr (API Key: kavenegar_...). Message: "Your order #1001 with total amount of $2500.00 has been confirmed."
+
+=== Processing Order #1002 (Customer selected Email) ===
+[Email Server] Dispatched to masoudsalehidev@gmail.com via SMTP (smtp.mailtrap.io). Body: "Your order #1002 with total amount of $8800.00 has been confirmed."
+
+=== Processing Order #1003 (Customer selected Telegram) ===
+[Telegram Gateway] Dispatched to masood_salehi_x via Telegram (API Key: telegram_1...). Message: "Your order #1003 with total amount of $12800.00 has been confirmed."
+```
+
+---
+
+## 🛠️ راهنمای پیاده‌سازی یک الگوی جدید
+
+برای اضافه کردن یک پترن جدید (به عنوان مثال `Singleton` در دسته `Creational`):
+
+1. به دایرکتوری مربوطه در `src/` بروید:
+   ```bash
+   cd src/Creational/Singleton
+   ```
+2. کلاس‌ها و اینترفیس‌های خود را با نیم‌اسپیس متناظر (`App\Creational\Singleton`) ایجاد کنید.
+3. یک فایل `index.php` برای نمونه اجرا و تست الگو بسازید:
+   ```php
+   <?php
+
+   declare(strict_types=1);
+
+   use App\Creational\Singleton\DatabaseConnection;
+
+   $db1 = DatabaseConnection::getInstance();
+   $db2 = DatabaseConnection::getInstance();
+
+   var_dump($db1 === $db2); // true
+   ```
+4. با دستور `./run Singleton` خروجی را بررسی کنید.
+
+---
+
+## ⚡ دستورات کاربردی (Makefile & Scripts)
+
+| دستور | توضیح |
+| :--- | :--- |
+| `./run` یا `make run` | اجرای رانر تعاملی پترن‌ها |
+| `./run <PatternName>` | اجرای مستقیم یک پترن مشخص |
+| `./run test` یا `make test` | اجرای تست‌های واحد PHPUnit |
+| `./run composer <command>` | اجرای دستورات Composer داخل کانتینر |
+| `./run bash` یا `make shell` | باز کردن ترمینال Bash داخل محیط کانتینر |
+| `./run build` یا `make build` | بیلد مجدد ایمیج داکر |
+| `./run php -v` | اجرای مستقیم دستورات PHP داخل کانتینر |
+
+---
+
+## 🧪 تست‌ها و تضمین کیفیت
+
+برای اجرای تست‌های واحد با PHPUnit:
+```bash
+./run test
+```
+
+همچنین می‌توانید تست‌های هر پترن را در مسیر `tests/` با نیم‌اسپیس `App\Tests\` قرار دهید.
+
+---
+
+## 📄 لایسنس
+این پروژه تحت لایسنس [MIT](LICENSE) منتشر شده است.
