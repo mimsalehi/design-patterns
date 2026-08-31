@@ -1,0 +1,11 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: design_patterns_php
+    volumes:
+      - .:/app
+    working_dir: /app
+    tty: true
+    stdin_open: true
