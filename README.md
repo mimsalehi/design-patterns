@@ -11,6 +11,7 @@
 - [نحوه اجرا و کار با Runner تعاملی](#-نحوه-اجرا-و-کار-با-runner-تعاملی)
 - [الگوهای پیاده‌سازی شده](#-الگوهای-پیادهسازی-شده)
   - [۱. Factory Method (الگوی آفرینشی)](#۱-factory-method-الگوی-آفرینشی)
+  - [۲. Abstract Factory (الگوی آفرینشی)](#۲-abstract-factory-الگوی-آفرینشی)
 - [راهنمای پیاده‌سازی یک الگوی جدید](#-راهنمای-پیادهسازی-یک-الگوی-جدید)
 - [دستورات کاربردی (Makefile & Scripts)](#-دستورات-کاربردی-makefile--scripts)
 - [تست‌ها و تضمین کیفیت](#-تستها-و-تضمین-کیفیت)
@@ -23,7 +24,7 @@
 - **Interactive CLI Runner:** اسکریپت تعاملی و هوشمند برای انتخاب و اجرای سریع الگوها با اندازه‌گیری زمان اجرا.
 - **Autoloading استاندارد (PSR-4):** با پیشوند نام‌فضای `App\` متصل به دایرکتوری `src/`.
 - **Debugging زیبا:** ادغام شده با `symfony/var-dumper` برای خروجی‌های خوانا و رنگی (`dump()`).
-- **تست‌نویسی:** آماده‌سازی شده برای نوشتن تست‌های واحد با **PHPUnit 11**.
+- **تست‌نویسی جامع:** آماده‌سازی شده برای نوشتن تست‌های واحد بر پایه قرارداد و تست‌های رفتاری با Mocking در **PHPUnit 11**.
 
 ---
 
@@ -55,7 +56,7 @@ design-patterns/
 │   └── run                        # اسکریپت اصلی PHP برای اجرای پترن‌ها
 ├── src/
 │   ├── Creational/                # الگوهای آفرینشی (Creational Patterns)
-│   │   ├── AbstractFactory/
+│   │   ├── AbstractFactory/       # [پیاده‌سازی شده]
 │   │   ├── Builder/
 │   │   ├── FactoryMethod/         # [پیاده‌سازی شده]
 │   │   ├── Prototype/
@@ -105,16 +106,16 @@ design-patterns/
 می‌توانید مستقیماً نام پترن یا مسیر آن را به عنوان ورودی ارسال کنید:
 
 ```bash
-# اجرای مستقیم الگوی FactoryMethod
-./run FactoryMethod
+# اجرای مستقیم الگوی AbstractFactory
+./run AbstractFactory
 
-# یا با ذکر دسته‌بندی
-./run Creational/FactoryMethod
+# یا اجرای مستقیم الگوی FactoryMethod
+./run FactoryMethod
 ```
 
 ### ۳. اجرای یک فایل PHP دلخواه
 ```bash
-./run src/Creational/FactoryMethod/index.php
+./run src/Creational/AbstractFactory/index.php
 ```
 
 ---
@@ -148,16 +149,37 @@ design-patterns/
 ./run FactoryMethod
 ```
 
-خروجی نمونه:
-```text
-=== Processing Order #1001 (Customer selected SMS) ===
-[SMS Gateway] Dispatched to +989111110202 via Kavenagr (API Key: kavenegar_...). Message: "Your order #1001 with total amount of $2500.00 has been confirmed."
+---
 
-=== Processing Order #1002 (Customer selected Email) ===
-[Email Server] Dispatched to masoudsalehidev@gmail.com via SMTP (smtp.mailtrap.io). Body: "Your order #1002 with total amount of $8800.00 has been confirmed."
+### ۲. Abstract Factory (الگوی آفرینشی)
 
-=== Processing Order #1003 (Customer selected Telegram) ===
-[Telegram Gateway] Dispatched to masood_salehi_x via Telegram (API Key: telegram_1...). Message: "Your order #1003 with total amount of $12800.00 has been confirmed."
+#### 🎯 هدف و صورت مسئله
+در یک سامانه لجستیک و ارسال مرسولات فروشگاهی در ایران، هر شرکت حمل‌ونقل پستی (مانند **شرکت ملی پست ایران**، **تیپاکس اکسپرس** و **چاپار**) دارای خانواده‌ای از ۳ ابزار وابسته به هم است:
+1. محاسبه‌گر تعرفه کرایه و بیمه حمل
+2. تولیدکننده بارکد رهگیری و لیبل چاپ استاندارد روی کارتن
+3. سامانه ثبت مانیفست و هماهنگی مامور جمع‌آوری از انبار
+
+#### ❌ رویکرد قدیمی (Legacy / Anti-pattern)
+در کلاس `Legacy\OrderFulfillmentService`، تمام فرایندهای شرکت‌های مختلف با شرط‌های تودرتوی `if/else` مدیریت می‌شد که خطر ترکیب اشتباه ابزارهای نامتناسب (مانند محاسبه با تعرفه پست اما صدور بارنامه تیپاکس) و نقض صریح اصل OCP را به همراه داشت.
+
+#### ✅ پیاده‌سازی با الگوی Abstract Factory
+- **Abstract Products (اینترفیس‌ها):**
+  - `ShippingRateCalculatorInterface`
+  - `WaybillGeneratorInterface`
+  - `PickupDispatcherInterface`
+- **Abstract Factory (کارخانه انتزاعی):**
+  - `LogisticsFactoryInterface`
+- **Concrete Factories & Product Families:**
+  - `IranPostLogisticsFactory` (تولیدکننده خانواده ابزارهای شرکت ملی پست)
+  - `TipaxLogisticsFactory` (تولیدکننده خانواده ابزارهای تیپاکس اکسپرس)
+  - `ChaparLogisticsFactory` (تولیدکننده خانواده ابزارهای چاپار)
+- **Client Pipeline:**
+  - `OrderFulfillmentPipeline`: بدون هیچ شرط `if/else` و صرفاً وابسته به اینترفیس کارخانه.
+
+#### 🧪 نحوه تست و اجرا:
+```bash
+./run AbstractFactory
+./run test
 ```
 
 ---
@@ -171,19 +193,7 @@ design-patterns/
    cd src/Creational/Singleton
    ```
 2. کلاس‌ها و اینترفیس‌های خود را با نیم‌اسپیس متناظر (`App\Creational\Singleton`) ایجاد کنید.
-3. یک فایل `index.php` برای نمونه اجرا و تست الگو بسازید:
-   ```php
-   <?php
-
-   declare(strict_types=1);
-
-   use App\Creational\Singleton\DatabaseConnection;
-
-   $db1 = DatabaseConnection::getInstance();
-   $db2 = DatabaseConnection::getInstance();
-
-   var_dump($db1 === $db2); // true
-   ```
+3. یک فایل `index.php` برای نمونه اجرا و تست الگو بسازید.
 4. با دستور `./run Singleton` خروجی را بررسی کنید.
 
 ---
@@ -209,7 +219,7 @@ design-patterns/
 ./run test
 ```
 
-همچنین می‌توانید تست‌های هر پترن را در مسیر `tests/` با نیم‌اسپیس `App\Tests\` قرار دهید.
+تمام پترن‌ها دارای تست‌های واحد بر پایه اعتبارسنجی قرارداد (Contract Verification) و تست‌های رفتاری با Mocking هستند.
 
 ---
 
