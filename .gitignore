@@ -3,6 +3,7 @@
 /.ai/
 .ai
 /.phpunit.cache/
+.phpunit.result.cache
 *.log
 .DS_Store
 .env
