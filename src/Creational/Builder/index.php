@@ -3,14 +3,15 @@
 declare(strict_types=1);
 
 use App\Creational\Builder\FlightTicketDirector;
-use App\Creational\Builder\Legacy\FlightTicket as LegacyFlightTicket;
+use App\Creational\Builder\Legacy\FlightTicket;
 use App\Creational\Builder\StandardFlightTicketBuilder;
 
 // ============================================================================
-// 0. Legacy approach comparison (Telescoping Constructor with multiple nulls)
+// Scenario 1: Standard passenger (No extra add-ons)
+// Passing ugly multiple nulls and default parameters!
 // ============================================================================
-echo "=== 0. Legacy Telescoping Constructor Approach ===\n";
-$legacyTicket = new LegacyFlightTicket(
+echo "=== Scenario 1: Standard Economy Ticket (Passing nulls) ===\n";
+$standardTicket = new FlightTicket(
     'W5-1044',
     'THR (Tehran)',
     'MHD (Mashhad)',
@@ -18,13 +19,36 @@ $legacyTicket = new LegacyFlightTicket(
     'Ali Rezaei',
     '0019283741',
     'ECONOMY',
-    0,
-    false,
-    false,
-    null,
-    null
+    0,     // No extra baggage
+    false, // No insurance
+    false, // No CIP
+    null,  // No special meal
+    null   // No seat chosen
 );
-echo $legacyTicket->getSummary() . "\n\n";
+echo $standardTicket->getSummary() . "\n\n";
+
+// ============================================================================
+// Scenario 2: VIP Business Passenger with full add-ons
+// ============================================================================
+echo "=== Scenario 2: VIP Business Ticket ===\n";
+$vipTicket = new FlightTicket(
+    'W5-1044',
+    'THR (Tehran)',
+    'MHD (Mashhad)',
+    '2026-09-20 08:30',
+    'Masoud Salehi',
+    '0028192831',
+    'BUSINESS',
+    20,    // 20kg extra baggage
+    true,  // Saman Travel Insurance
+    true,  // Mehrabad CIP Airport Lounge
+    'Diabetic Meal',
+    '1A'
+);
+echo $vipTicket->getSummary() . "\n";
+
+
+
 
 // ============================================================================
 // 1. Fluent Builder: Custom step-by-step assembly (Zero nulls passed!)
@@ -74,7 +98,7 @@ $vipTicket = $director->buildVipBusinessPackage(
     'Dr. Kaveh Rad',
     '0034182910',
     '2A',
-    'Diabetic / Low-Sodium Meal'
+    'Diabetic / Low-Sodium Meal',
 );
 
 echo $vipTicket->getSummary() . "\n";

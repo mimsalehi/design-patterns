@@ -21,7 +21,7 @@ class FlightTicket
         private bool $hasTravelInsurance = false,
         private bool $hasCipLounge = false,
         private ?string $specialMeal = null,
-        private ?string $selectedSeatNumber = null
+        private ?string $selectedSeatNumber = null,
     ) {
     }
 
