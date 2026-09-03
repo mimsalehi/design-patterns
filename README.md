@@ -15,6 +15,7 @@
   - [۳. Prototype (الگوی آفرینشی)](#۳-prototype-الگوی-آفرینشی)
   - [۴. Builder (الگوی آفرینشی)](#۴-builder-الگوی-آفرینشی)
   - [۵. Adapter (الگوی ساختاری)](#۵-adapter-الگوی-ساختاری)
+  - [۶. Bridge (الگوی ساختاری)](#۶-bridge-الگوی-ساختاری)
 - [راهنمای پیاده‌سازی یک الگوی جدید](#-راهنمای-پیادهسازی-یک-الگوی-جدید)
 - [دستورات کاربردی (Makefile & Scripts)](#-دستورات-کاربردی-makefile--scripts)
 - [تست‌ها و تضمین کیفیت](#-تستها-و-تضمین-کیفیت)
@@ -67,7 +68,7 @@ design-patterns/
 │   │
 │   ├── Structural/                # الگوهای ساختاری (Structural Patterns)
 │   │   ├── Adapter/               # [پیاده‌سازی شده]
-│   │   ├── Bridge/
+│   │   ├── Bridge/                # [پیاده‌سازی شده]
 │   │   ├── Composite/
 │   │   ├── Decorator/
 │   │   ├── Facade/
@@ -245,6 +246,29 @@ design-patterns/
 #### 🧪 نحوه تست و اجرا:
 ```bash
 ./run Adapter
+./run test
+```
+---
+
+### ۶. Bridge (الگوی ساختاری)
+
+#### 🎯 هدف و صورت مسئله
+در سامانه‌های حسابداری، اتوماسیون اداری و ERP سازمانی در ایران، سیستم با دو بعد تغییر مستقل روبه‌رو است:
+۱. **انواع اسناد و گزارش‌های مالی (Abstraction):** مانند صورت‌حساب رسمی مالیاتی (`TaxInvoiceReport`) و فیش حقوق و دستمزد پرسنلی (`PayrollSlipReport`).
+۲. **موتورهای رندرینگ خروجی (Implementation):** مانند موتور رندر PDF چاپی، موتور خروجی شیت اکسل، موتور نمایش کارت وب HTML و موتور اسلاید پاورپوئینت.
+
+#### ❌ رویکرد قدیمی و انفجار کلاسی ضرب دکارتی (Cartesian Class Explosion)
+استفاده از ارث‌بری چندگانه سنتی باعث می‌شود برای هر گزارش و هر فرمت یک کلاس مجزا بسازیم (`TaxInvoicePdfReport`، `TaxInvoiceExcelReport`، `PayrollSlipPdfReport`...). با اضافه شدن هر گزارش یا فرمت جدید، تعداد کلاس‌ها به صورت ضربی ($N \times M$) منفجر می‌شود و کدهای بیزینس در تمام کلاس‌ها کپی و تکرار می‌گردند.
+
+#### ✅ پیاده‌سازی با الگوی Bridge
+- **Base Abstraction:** `FinancialReport` (کلاس پایه حاوی متغیر پل ارتباطی به رندرر و متد `setRenderer` جهت تعویض موتور در زمان اجرا).
+- **Refined Abstractions:** `TaxInvoiceReport` و `PayrollSlipReport` (تعیین‌کننده داده‌ها و فیلدهای بیزینس مالی).
+- **Implementor Interface:** `ReportRendererInterface` (قرارداد استاندارد موتورهای رندرینگ).
+- **Concrete Implementors:** `PdfReportRenderer`، `ExcelReportRenderer`، `HtmlReportRenderer` و `PowerPointReportRenderer`.
+
+#### 🧪 نحوه تست و اجرا:
+```bash
+./run Bridge
 ./run test
 ```
 
